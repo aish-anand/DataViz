@@ -1,132 +1,292 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.min.js"></script>
-    <title>Basic Scatter Plot</title>
-    <style>
-      body {
-        margin: 0px;
-      }
-      .domain {
-        display: none;
-      }
-      .tick line {
-        stroke: #C0C0BB;
-      }
-      .tick text, .legendCells text {
-        fill: #8E8883;
-        font-size: 28pt;
-        font-family: sans-serif;
-      }
-      .axis-label, .legend-label {
-        fill: #635F5D;
-        font-size: 50pt;
-        font-family: sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <svg width="960" height="500"></svg>
-    <script>
-      const xValue = d => d.sepalLength;
-      const xLabel = 'Sepal Length';
-      const yValue = d => d.petalLength;
-      const yLabel = 'Petal Length';
-      const colorValue = d => d.species;
-      const colorLabel = 'Species';
-      const margin = { left: 120, right: 300, top: 20, bottom: 120 };
+<head>
+  <title>Air Quality Index</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Merriweather" type="text/css">
+<style type="text/css">
+body {
+  margin: 0;
+  font-family: Merriweather;
+}
 
-      const svg = d3.select('svg');
-      const width = svg.attr('width');
-      const height = svg.attr('height');
-      const innerWidth = width - margin.left - margin.right;
-      const innerHeight = height - margin.top - margin.bottom;
+.label {
+  font-size: 15px;
+}
 
-      const g = svg.append('g')
-          .attr('transform', `translate(${margin.left},${margin.top})`);
-      const xAxisG = g.append('g')
-          .attr('transform', `translate(0, ${innerHeight})`);
-      const yAxisG = g.append('g');
-      const colorLegendG = g.append('g')
-          .attr('transform', `translate(${innerWidth + 60}, 150)`);
+.legend{
+  opacity: 1;
+  transition: opacity 0.3s;
+}
 
-      xAxisG.append('text')
-          .attr('class', 'axis-label')
-          .attr('x', innerWidth / 2)
-          .attr('y', 100)
-          .text(xLabel);
+.legend text,
+.axis text {
+  font-size: 13px;
+  fill: #333;
+  font-family: Merriweather;
+}
 
-      yAxisG.append('text')
-          .attr('class', 'axis-label')
-          .attr('x', -innerHeight / 2)
-          .attr('y', -60)
-          .attr('transform', `rotate(-90)`)
-          .style('text-anchor', 'middle')
-          .text(yLabel);
+.axis path,
+.axis line {
+  fill: none;
+  stroke-width:1px;
+  stroke: #e7e7e7;
+}
 
-      colorLegendG.append('text')
-          .attr('class', 'legend-label')
-          .attr('x', -30)
-          .attr('y', -40)
-          .text(colorLabel);
+circle {
+  stroke: #fff;
+}
 
-      const xScale = d3.scaleLinear();
-      const yScale = d3.scaleLinear();
-      const colorScale = d3.scaleOrdinal()
-        .range(d3.schemeCategory10);
+.bubble {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
 
-      const xAxis = d3.axisBottom()
-        .scale(xScale)
-        .tickPadding(15)
-        .tickSize(-innerHeight);
+.bubble text {
+  opacity: 0;
+  pointer-events: none;
+  font-size: 12px;
+  font-family: Merriweather;
+}
 
-      const yAxis = d3.axisLeft()
-        .scale(yScale)
-        .ticks(5)
-        .tickPadding(15)
-        .tickSize(-innerWidth);
+.bubble:hover text {
+	opacity: 1;
+}
 
-      const colorLegend = d3.legendColor()
-        .scale(colorScale)
-        .shape('circle');
+.bubble:hover circle {
+	fill-opacity: 1;
+}
 
-      const row = d => {
-        d.petalLength = +d.petalLength;
-        d.petalWidth = +d.petalWidth;
-        d.sepalLength = +d.sepalLength;
-        d.sepalWidth = +d.sepalWidth;
-        return d;
-      };
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
 
-      d3.csv('iris.csv', row, data => {
-        xScale
-          .domain(d3.extent(data, xValue))
-          .range([0, innerWidth])
-          .nice();
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
 
-        yScale
-          .domain(d3.extent(data, yValue))
-          .range([innerHeight, 0])
-          .nice();
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
 
-        g.selectAll('circle').data(data)
-          .enter().append('circle')
-            .attr('cx', d => xScale(xValue(d)))
-            .attr('cy', d => yScale(yValue(d)))
-            .attr('fill', d => colorScale(colorValue(d)))
-            .attr('fill-opacity', 0.6)
-            .attr('r', 8);
+h1 {
+  font-family: Merriweather;
+  font-size: 48px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 26.4px;
+}
+h3 {
+  font-family: Merriweather;
+  font-size: 24px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 15.4px;
+}
 
-        xAxisG.call(xAxis);
-        yAxisG.call(yAxis);
-        colorLegendG.call(colorLegend)
-          .selectAll('.cell text')
-            .attr('dy', '0.1em');
-      });
-    </script>
-  </body>
+h4 {
+  font-family: Merriweather;
+  font-size: 18px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 15.4px;
+}
+
+p {
+  font-family: Merriweather;
+  font-size: 14px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+#description{
+    padding: 0px 10px 10px 240px;
+    margin: 10px;
+    height: auto;
+    width: 60%;
+}
+
+
+
+</style>
+</head>
+<body>
+  <div>
+  <H1>Air Quality Index 2016</H1>
+  <H3>COMPSCI 590V - Homework 1</H3>
+  <h4>Aishwarya A. Turuvekere</h4>
+</div>
+<div>
+<script src="//d3js.org/d3.v4.0.0-alpha.35.min.js"></script>
+<script>
+var margin = { top: 30, right: 100, bottom: 50, left: 100 };
+var width = 960 - margin.left - margin.right;
+var height = 500 - margin.top - margin.bottom;
+
+var svg = d3.select("body")
+  .attr("align", "center")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var xscale = d3.scaleLinear()
+  .domain([0,800])
+  .range([0,width]);
+
+var yscale = d3.scaleLinear()
+  .range([height,0]);
+
+var radius = d3.scaleSqrt()
+  .range([2,8]);
+
+var xAxis = d3.axisBottom()
+  .tickSize(-height)
+  .scale(xscale);
+
+var yAxis = d3.axisLeft()
+  .tickSize(-width)
+  .scale(yscale)
+
+var color = d3.scaleCategory10();
+
+d3.csv("top_cities_aqi.csv", function(error, data) {
+  // console.log(data);
+  // data pre-processing
+  data.forEach(function(d) {
+    d.y = +d["AQI"];
+    d.x = +d["Day"];
+  });
+
+  // data.sort(function(a,b) { return b.r - a.r; });
+  xscale.domain(d3.extent(data, function(d) {
+    return d.x;
+  })).nice();
+
+  yscale.domain(d3.extent(data, function(d) {
+    return d.y;
+  })).nice();
+
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .attr("class", "x axis")
+    .call(xAxis);
+
+  svg.append("g")
+    .attr("transform", "translate(0,0)")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+  var group = svg.selectAll("g.bubble")
+    .data(data)
+    .enter().append("g")
+    .attr("class", "bubble")
+    .attr("transform", function(d) {
+      return "translate(" + xscale(d.x) + "," + yscale(d.y) + ")"
+    });
+
+  group
+    .append("circle")
+    .attr("r", 3.5)
+    .style("fill", function(d) {
+      return color(d["City"]);
+    })
+
+  group
+  	.append("text")
+  	.attr("alignment-baseline", "right")
+  	.text(function(d) { 
+  		return "Day :" + d["Day"];
+  	});
+
+  var xLabel = "Day of Year"
+  var yLabel = "Air Quality Index"
+
+  svg.append("text")
+    .attr("class", "axis-label")
+    .attr("x",width/2)
+    .attr("y",height+40)
+    .attr("text-anchor","middle")
+    .text(xLabel);
+
+  svg.append("text")
+    .attr("class", "axis-label")
+    .attr("x",-height/2)
+    .attr("y",-40)
+    .attr("transform","rotate(-90)")
+    .attr("text-anchor", "middle")
+    .text(yLabel);
+
+  var legend = svg.selectAll(".legend")
+      .data(color.domain())
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(2," + i * 14 + ")"; });
+
+  legend.append("rect")
+      .attr("x", width)
+      .attr("width", 12)
+      .attr("height", 12)
+      .style("fill", color);
+
+  legend.append("text")
+      .attr("x", width + 16)
+      .attr("y", 6)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start")
+      .text(function(d) { return d; });
+
+  legend.on("mouseover", function(type) {
+      d3.selectAll(".legend")
+        .style("opacity", 0.1);
+      d3.select(this)
+        .style("opacity", 1);
+      d3.selectAll(".bubble")
+        .style("opacity", 0.1)
+        .filter(function(d) { return d["City"] == type; })
+        .style("opacity", 1);
+    })
+    .on("mouseout", function(type) {
+      d3.selectAll(".legend")
+        .style("opacity", 1);
+      d3.selectAll(".bubble")
+        .style("opacity", 1);
+    });
+
+
+});
+</script>
+</div>
+<div id = "description">
+  <p style="text-align: justify;">An air quality index (AQI) is a number used by government agencies to communicate to the public how polluted the air currently is or how polluted it is forecast to become.As the AQI increases, an increasingly large percentage of the population is likely to experience increasingly severe adverse health effects. </p>
+  <p style="text-align: justify;">The <a href="https://www.epa.gov/">United States Environmental Protection Agency</a>(EPA) has developed an Air Quality Index that is used to report air quality. The scatterplot above shows daily pollution levels for the year of 2016 in the <a href="https://en.wikipedia.org/wiki/List_of_metropolitan_statistical_areas">top five metropolitan areas</a>.</p>
+  <a href="https://aqs.epa.gov/aqsweb/airdata/download_files.html">Link to data source</a>
+  <H4 style="text-align: left;">Outcomes from this class</H4>
+  <p style="text-align: justify;">I previously have done courses on machine learning and data mining. I hope to use data visualization techniques to create static and interactive visuals within to help understand and make sense of both data and data models I have very little experience with web development and I'm excited to learn D3 as part of this course curriculum!</p>
+</div>
+</body>
 </html>
-iris.csv
